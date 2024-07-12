@@ -1,4 +1,4 @@
-# CRUD GENERATOR EXPRESS
+# MYSQL AUTO BACKUP
 
 how to use:
 
