@@ -1,4 +1,4 @@
-# MYSQL AUTO BACKUP
+# MYSQL BACKUP SYSTEM
 
 how to use:
 
