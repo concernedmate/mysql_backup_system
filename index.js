@@ -47,9 +47,6 @@ const readArgs = () => {
 }
 
 const startBackup = async () => {
-    if (process.env.BACKUP_DIR != "") {
-        console.log("CUSTOM DIR NOT YET IMPLEMENTED");
-    }
     const args = readArgs();
 
     let command = 'mysqldump';
