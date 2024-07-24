@@ -73,8 +73,8 @@ const startBackup = async () => {
         const backup = async () => {
             const sql = child_process.spawn(`${command}`, [
                 '-u',
-                `${process.env.MYSQL_UID}`,
-                `-p${process.env.MYSQL_PWD}`,
+                `${mysql_config.user}`,
+                `-p${mysql_config.password}`,
                 `${schema_name}`,
                 `--no-tablespaces`,
                 `--single-transaction`
