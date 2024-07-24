@@ -92,7 +92,10 @@ const startBackup = async () => {
                         console.log(`Schema ${schema_name} processed: ${written}`);
                     });
                 })
-                sql.stdout.on('error', reject);
+                sql.stdout.on('error', (error) => {
+                    console.log(`Error!: ${error}`);
+                    reject;
+                });
                 sql.stdout.on('finish', resolve);
             })
         }
