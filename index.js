@@ -3,15 +3,10 @@ const fs = require('fs');
 const mysql = require("mysql2/promise");
 const child_process = require('child_process');
 const path = require('path');
+const { mysql_config, mysqldump_location } = require('./config');
 
 const getAllSchema = async () => {
-    const config = {
-        user: process.env.MYSQL_UID,
-        password: process.env.MYSQL_PWD,
-        host: process.env.MYSQL_SERVER,
-        database: process.env.MYSQL_DB,
-        port: process.env.MYSQL_PORT
-    };
+    const config = mysql_config;
 
     const conn = await mysql.createConnection(config);
     const [result] = await conn.query("SHOW DATABASES");
@@ -59,8 +54,8 @@ const startBackup = async () => {
     const args = readArgs();
 
     let command = 'mysqldump';
-    if (process.env.MYSQLDUMP_LOCATION != null && process.env.MYSQLDUMP_LOCATION != '') {
-        command = `"${process.env.MYSQLDUMP_LOCATION}"`;
+    if (mysqldump_location != null && mysqldump_location != '') {
+        command = `${mysqldump_location}`;
     }
 
     let schemas = []
@@ -76,13 +71,41 @@ const startBackup = async () => {
     const generated = [];
     for (let i = 0; i < schemas.length; i++) {
         const schema_name = schemas[i];
-        const sql = child_process.execSync(`${command} -u ${process.env.MYSQL_UID} -p${process.env.MYSQL_PWD} ${schema_name}`).toString();
-
         if (!fs.existsSync(path.join(__dirname, 'backup', schema_name))) {
             fs.mkdirSync(path.join(__dirname, 'backup', schema_name), { recursive: true })
         }
-        fs.writeFileSync(path.join(__dirname, 'backup', schema_name, `bak_${datetime}.sql`), sql);
-        generated.push(path.join(schema_name, `bak_${datetime}.sql`));
+        const backup = async () => {
+            const sql = child_process.spawn(`${command}`, [
+                '-u',
+                `${process.env.MYSQL_UID}`,
+                `-p${process.env.MYSQL_PWD}`,
+                `${schema_name}`
+            ]);
+            const wstream = fs.createWriteStream(path.join(__dirname, 'backup', schema_name, `bak_${datetime}.sql`));
+
+            return new Promise((resolve, reject) => {
+                // sql.stdout.on('error', reject).pipe(wstream);
+
+                // we pipe manual
+                let written = 0;
+                sql.stdout.on('data', (data) => {
+                    wstream.write(data, () => {
+                        written += data.length;
+                        console.log(`Schema ${schema_name} processed: ${written}`);
+                    });
+                })
+                sql.stdout.on('error', reject);
+                sql.stdout.on('finish', resolve);
+            })
+        }
+
+        try {
+            await backup();
+            generated.push(path.join(__dirname, 'backup', schema_name, `bak_${datetime}.sql`));
+        } catch (error) {
+            console.log(`Failed to generate backup for: ${schema_name}`);
+        }
+        // fs.writeFileSync(path.join(__dirname, 'backup', schema_name, `bak_${datetime}.sql`), sql);
     }
     console.log("Generated: ", generated);
     process.exit();

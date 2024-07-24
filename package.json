@@ -9,7 +9,6 @@
   "author": "afif azizy",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.5",
     "mysql2": "^3.10.2"
   }
 }
