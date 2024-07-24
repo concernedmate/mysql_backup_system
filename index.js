@@ -1,4 +1,3 @@
-require('dotenv').config();
 const fs = require('fs');
 const mysql = require("mysql2/promise");
 const child_process = require('child_process');
