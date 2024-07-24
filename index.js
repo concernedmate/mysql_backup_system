@@ -76,7 +76,8 @@ const startBackup = async () => {
                 `${process.env.MYSQL_UID}`,
                 `-p${process.env.MYSQL_PWD}`,
                 `${schema_name}`,
-                `--no-tablespaces`
+                `--no-tablespaces`,
+                `--single-transaction`
             ]);
             const wstream = fs.createWriteStream(path.join(__dirname, 'backup', schema_name, `bak_${datetime}.sql`));
 
