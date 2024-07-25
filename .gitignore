@@ -2,3 +2,5 @@ backup
 node_modules
 .env
 package-lock.json
+
+keys/*
