@@ -2,7 +2,7 @@ const fs = require('fs');
 const mysql = require("mysql2/promise");
 const child_process = require('child_process');
 const path = require('path');
-const { mysql_config, mysqldump_location, KEY_NAME, HOST_NAME, USER_NAME } = require('./config');
+const { mysql_config, mysqldump_location, KEY_NAME, HOST_NAME, USER_NAME, PORT } = require('./config');
 
 const getAllSchema = async () => {
     const config = mysql_config;
@@ -115,7 +115,7 @@ const startBackup = async () => {
         console.log("Generated: ", generated[i].path);
         try {
             const a = async () => {
-                const upload = child_process.exec(`cat ${generated[i].path} | ssh -i "${KEY_NAME}" ${USER_NAME}@${HOST_NAME} "cd /home/${USER_NAME}/mysql_system_backup/ && cat -> ${generated[i].schema_name}_${datetime}.sql"`);
+                const upload = child_process.exec(`cat ${generated[i].path} | ssh -i "${KEY_NAME}" ${USER_NAME}@${HOST_NAME} ${PORT != null && PORT != "" ? `-p ${PORT}` : ``} "cd /home/${USER_NAME}/mysql_system_backup/ && cat -> ${generated[i].schema_name}_${datetime}.sql"`);
                 return new Promise((resolve, reject) => {
                     upload.stdout.on('error', (error) => {
                         reject(error);

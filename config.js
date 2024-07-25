@@ -10,5 +10,6 @@ const mysqldump_location = "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mys
 const KEY_NAME = ""
 const USER_NAME = ""
 const HOST_NAME = ""
+const PORT = "22"
 
-module.exports = { mysql_config, mysqldump_location, KEY_NAME, HOST_NAME, USER_NAME }
+module.exports = { mysql_config, mysqldump_location, KEY_NAME, HOST_NAME, USER_NAME, PORT }
