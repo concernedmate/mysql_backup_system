@@ -12,4 +12,6 @@ const USER_NAME = ""
 const HOST_NAME = ""
 const PORT = "22"
 
-module.exports = { mysql_config, mysqldump_location, KEY_NAME, HOST_NAME, USER_NAME, PORT }
+const BACKUP_CLIENT_NAME = ""
+
+module.exports = { mysql_config, mysqldump_location, KEY_NAME, HOST_NAME, USER_NAME, PORT, BACKUP_CLIENT_NAME }
