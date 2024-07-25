@@ -20,8 +20,8 @@ const getAllSchema = async () => {
 }
 
 const readArgs = () => {
-    const validArgs = ['database', '-all', '-gdrive'];
-    const args = { database: '', all: false, gdrive: false };
+    const validArgs = ['database', '-all', '-upload'];
+    const args = { database: '', all: false, upload: false };
     const read = process.argv;
     for (let i = 2; i < read.length; i++) {
         if (validArgs.indexOf(read[i]) == -1) {
@@ -113,22 +113,24 @@ const startBackup = async () => {
         }
     }
 
-    for (let i = 0; i < generated.length; i++) {
-        try {
-            const a = async () => {
-                const upload = child_process.exec(`cat ${generated[i].path} | ssh -i "${KEY_NAME}" ${USER_NAME}@${HOST_NAME} ${PORT != null && PORT != "" ? `-p ${PORT}` : ``} "cd /home/${USER_NAME}/mysql_system_backup/ && cat -> ${generated[i].schema_name}_${datetime}.sql"`);
-                return new Promise((resolve, reject) => {
-                    upload.stdout.on('error', (error) => {
-                        reject(error);
-                    });
-                    upload.stdout.on('finish', () => {
-                        resolve(`Backup ${generated[i].schema_name} uploaded`)
-                    });
-                })
+    if (args.upload) {
+        for (let i = 0; i < generated.length; i++) {
+            try {
+                const a = async () => {
+                    const upload = child_process.exec(`cat ${generated[i].path} | ssh -i "${KEY_NAME}" ${USER_NAME}@${HOST_NAME} ${PORT != null && PORT != "" ? `-p ${PORT}` : ``} "cd /home/${USER_NAME}/mysql_system_backup/ && cat -> ${generated[i].schema_name}_${datetime}.sql"`);
+                    return new Promise((resolve, reject) => {
+                        upload.stdout.on('error', (error) => {
+                            reject(error);
+                        });
+                        upload.stdout.on('finish', () => {
+                            resolve(`Backup ${generated[i].schema_name} uploaded`)
+                        });
+                    })
+                }
+                console.log(await a());
+            } catch (error) {
+                console.log(`Failed to upload backup ${generated[i].schema_name}`);
             }
-            console.log(await a());
-        } catch (error) {
-            console.log(`Failed to upload backup ${generated[i].schema_name}`);
         }
     }
     process.exit();
