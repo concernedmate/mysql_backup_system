@@ -88,6 +88,7 @@ const startBackup = async () => {
                 sql.stdout.on('data', (data) => {
                     wstream.write(data, () => {
                         written += data.length;
+                        console.log(`\x1B[2J\x1B[H`) // clear console
                         console.log(`Schema ${schema_name} processed: ${written}`);
                     });
                 })
@@ -106,13 +107,13 @@ const startBackup = async () => {
                 path,
                 schema_name
             });
+            console.log("Generated: ", path);
         } catch (error) {
             console.log(`Failed to generate backup for: ${schema_name}`);
         }
     }
 
     for (let i = 0; i < generated.length; i++) {
-        console.log("Generated: ", generated[i].path);
         try {
             const a = async () => {
                 const upload = child_process.exec(`cat ${generated[i].path} | ssh -i "${KEY_NAME}" ${USER_NAME}@${HOST_NAME} ${PORT != null && PORT != "" ? `-p ${PORT}` : ``} "cd /home/${USER_NAME}/mysql_system_backup/ && cat -> ${generated[i].schema_name}_${datetime}.sql"`);
